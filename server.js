@@ -42,10 +42,27 @@ server.get('/location',(req,res)=>{
     this.latitude=geoData[0].lat;
     this.longitude = geoData[0].lon;
  }
+ let lastTry=[];
+ server.get('/weather',(req,res)=>{
+    // const city = req.query.city;
+    const weathData = require('./data/weather.json');
+    for (let index = 0; index < weathData.data.length; index++) {
+        const weatherData = new Weather(index,weathData);
+        lastTry.push(weatherData);  
+            }
+            res.send(lastTry);  
+
+   });
+   function Weather(index,weathData ){
+    // this.search_query = city;
+    this.description = weathData.data[index].weather.description;
+    this.time = weathData.data[index].valid_date;
+   }
+
 server.use('*',(req,res)=>{
-    res.status(404).send('NOT FOUND');
+    res.status(404).send('Go kill your self :*(');
 });
 
 server.use((error,req,res)=>{
-    res.status(500).send('NOT FOUND');
+    res.status(500).send('Sorry, something went wrong');
 });
