@@ -27,20 +27,20 @@ server.get('/location',(req,res)=>{
  const city = req.query.city;
  const geoData = require('./data/geo.json');
 //  console.log(geoData);
-//  let formated_name = geoData[0].display_name;
-//  console.log(formated_name);
+//  let formatted_query = geoData[0].display_name;
+//  console.log(formatted_query);
 //  let latitude = geoData[0].lat;
-//  let lonitude = geoData[0].lon;
+//  let longitude = geoData[0].lon;
 //  console.log(latitude);
-//  console.log(lonitude);
+//  console.log(longitude);
  const locationData = new Location(city,geoData);
  res.send(locationData);
 });
  function Location(city,geoData ){
     this.search_query = city;
-    this.formated_name = geoData[0].display_name;
+    this.formatted_query = geoData[0].display_name;
     this.latitude=geoData[0].lat;
-    this.lonitude = geoData[0].lon;
+    this.longitude = geoData[0].lon;
  }
 server.use('*',(req,res)=>{
     res.status(404).send('NOT FOUND');
