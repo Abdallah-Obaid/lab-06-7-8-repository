@@ -60,9 +60,9 @@ server.get('/location',(req,res)=>{
    }
 
 server.use('*',(req,res)=>{
-    res.status(404).send('NOT FOUND');
+    res.status(404).send('Go kill your self :*(');
 });
 
 server.use((error,req,res)=>{
-    res.status(500).send('NOT FOUND');
+    res.status(500).send('Sorry, something went wrong');
 });
