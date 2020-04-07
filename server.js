@@ -7,10 +7,12 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const superagent = require('superagent');
+const pg = require('pg');
 // Application setup
 const PORT = process.env.PORT;
 const server =  express();
 server.use(cors());
+const client = new pg.Client(process.env.DATABASE_URL);
 
 //global vars
 let longitude;
@@ -29,15 +31,34 @@ server.get('/location',locationHandler);
 server.get('/weather',weatherHandler);
 server.get('/trails',trailsHandler);
 
-
 //Route handlers
 // localhost:3030/location?city=Lynnwood
 function locationHandler(request, response) {
  const city = request.query.city;
- getLocation(city)
-  .then (locationData => response.status(200).json(locationData));
+ let loc;
+ client.query("SELECT * FROM locations WHERE search_query = $1;",
+  [city],
+  (error, result) => {
+    loc = result.rows[0];
+    if (loc == undefined){
+    console.log(loc)
+    getLocation(city)
+    .then (locationData =>{ 
+      client.query("INSERT INTO locations (formatted_query,search_query,latitude,longitude) VALUES ($1,$2,$3,$4);",
+      [locationData.formatted_query,locationData.search_query,locationData.latitude,locationData.longitude],
+      (error, result) => {
+        loc =locationData;});
+        longitude = loc.longitude;
+        latitude  = loc.latitude;
+        response.status(200).json(loc)
+      })
+  }else{
+          longitude = loc.longitude;
+      latitude  = loc.latitude;
+      response.status(200).json(loc)
+  }
+  });
 };
-// console.log(longitude)
 
 function getLocation(city){
 let key = process.env.GEOCODE_API_KEY;
@@ -46,8 +67,8 @@ const url = `https://eu1.locationiq.com/v1/search.php?key=${key}&q=${city}&forma
 return superagent.get(url)
 .then(geoData => {
     const locationData = new Location(city,geoData.body);
-    longitude = locationData.longitude
-    latitude =locationData.latitude
+    longitude = locationData.longitude;
+    latitude =locationData.latitude;
     return locationData;
 })
 }
@@ -85,11 +106,15 @@ function Weather(day) {
 }
 
  function trailsHandler(request, response) {
-  getTrail()
+  //If we dont want to get the latitude and longitude from the location api
+  const latitude = request.query.latitude; 
+  const longitude = request.query.longitude; 
+
+  getTrail(latitude,longitude)
   .then (trailArray => response.status(200).json(trailArray));
 }
 
-function getTrail() {
+function getTrail(latitude,longitude) {
 
    console.log(longitude,latitude,"hi");
    let key = process.env.TRAIL_API_KEY;
@@ -120,12 +145,14 @@ function getTrail() {
 
 
 //Make sure the server is listening for requests
-server.listen(PORT, () => console.log(`App is listening on ${PORT}`));
+client.connect()
+.then(()=>{
+server.listen(PORT, () => console.log(`App is listening on ${PORT}`));})
 
 
-//  server.use('*',(req,res)=>{
-//   res.status(404).send('Go kill your self :*(');
-// });
+ server.use('*',(req,res)=>{
+  res.status(404).send('Go kill your self :*(');
+});
 
 // server.use((error,req,res)=>{
 //   res.status(500).send('Sorry, something went wrong');
