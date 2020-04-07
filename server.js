@@ -7,11 +7,14 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const superagent = require('superagent');
-
 // Application setup
 const PORT = process.env.PORT;
 const server =  express();
 server.use(cors());
+
+//global vars
+let longitude;
+let latitude ;
 
 // server.listen(PORT,()=>{
 //     console.log(`lissadsad to my port ${PORT}`)
@@ -24,29 +27,36 @@ server.get('/',(request,response) => {
 //Route definitions
 server.get('/location',locationHandler);
 server.get('/weather',weatherHandler);
+server.get('/trails',trailsHandler);
+
 
 //Route handlers
 // localhost:3030/location?city=Lynnwood
 function locationHandler(request, response) {
  const city = request.query.city;
  getLocation(city)
-.then(locationData=> response.status(200).json(locationData));
-
+  .then (locationData => response.status(200).json(locationData));
 };
-function   getLocation(city){
-let key = process.env.LOCATION_KEY;
+// console.log(longitude)
+
+function getLocation(city){
+let key = process.env.GEOCODE_API_KEY;
 const url = `https://eu1.locationiq.com/v1/search.php?key=${key}&q=${city}&format=json`;
+  
 return superagent.get(url)
 .then(geoData => {
     const locationData = new Location(city,geoData.body);
+    longitude = locationData.longitude
+    latitude =locationData.latitude
     return locationData;
 })
 }
- function Location(city,geoData ){
+
+ function Location(city,Data){
     this.search_query = city;
-    this.formatted_query = geoData[0].display_name;
-    this.latitude=geoData[0].lat;
-    this.longitude = geoData[0].lon;
+    this.formatted_query = Data[0].display_name;
+    this.latitude= Data[0].lat;
+    this.longitude = Data[0].lon;
  }
 
  function weatherHandler(request, response) {
@@ -55,23 +65,18 @@ return superagent.get(url)
   .then (weatherData => response.status(200).json(weatherData));
 }
 
-let weatherSummaries = [];
-
 function getWeather(city) {
-
   let key = process.env.WEATHER_API_KEY;
   const url = `https://api.weatherbit.io/v2.0/forecast/daily?city=${city}&key=${key}`;
-  console.log(url);
   return superagent.get(url)
   .then(weatherData => {
-    weatherData.body.data.forEach(val => {
-      var weatherData = new Weather(val);
-      weatherSummaries.push(weatherData);
-    });
+    let weatherSummaries = weatherData.body.data.map(obj => {
+    var weatherData = new Weather(obj);
+    return weatherData
+    })
     return weatherSummaries;
 
   })
-
 }
 function Weather(day) {
   this.forecast = day.weather.description;
@@ -79,6 +84,39 @@ function Weather(day) {
     this.time = day.valid_date;
 }
 
+ function trailsHandler(request, response) {
+  getTrail()
+  .then (trailArray => response.status(200).json(trailArray));
+}
+
+function getTrail() {
+
+   console.log(longitude,latitude,"hi");
+   let key = process.env.TRAIL_API_KEY;
+   const url = `https://www.hikingproject.com/data/get-trails?lat=${latitude}&lon=${longitude}&maxDistance=10&key=${key}`;
+  return superagent.get(url)
+  .then(data => {
+     let trailArray = [];
+        data.body.trails.forEach(val =>{
+        const trailData = new TRAI(val);
+        trailArray.push(trailData)
+        })
+        return trailArray;
+  })
+}
+
+  function TRAI (dataa ){
+     this.name = dataa.name;
+     this.location=dataa.location;
+     this.length = dataa.length;
+     this.stars = dataa.stars;
+     this.star_votes=dataa.starVotes;
+     this.summary = dataa.summary;
+     this.trail_url = dataa.url;
+     this.conditions=dataa.conditionDetails;
+     this.condition_date = dataa.conditionDate.split(' ')[0];
+     this.condition_time = dataa.conditionDate.split(' ')[1];
+  }
 
 
 //Make sure the server is listening for requests
