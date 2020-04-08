@@ -17,6 +17,7 @@ const client = new pg.Client(process.env.DATABASE_URL);
 //global vars
 let longitude;
 let latitude ;
+let cityGlobel;
 
 // server.listen(PORT,()=>{
 //     console.log(`lissadsad to my port ${PORT}`)
@@ -30,6 +31,8 @@ server.get('/',(request,response) => {
 server.get('/location',locationHandler);
 server.get('/weather',weatherHandler);
 server.get('/trails',trailsHandler);
+server.get('/movies',moviesHandler);
+server.get('/yelp', yelpsHandler);
 
 //Route handlers
 // localhost:3030/location?city=Lynnwood
@@ -50,11 +53,13 @@ function locationHandler(request, response) {
         loc =locationData;});
         longitude = loc.longitude;
         latitude  = loc.latitude;
+        cityGlobel = loc.search_query;
         response.status(200).json(loc)
       })
   }else{
           longitude = loc.longitude;
       latitude  = loc.latitude;
+      cityGlobel = loc.search_query;
       response.status(200).json(loc)
   }
   });
@@ -69,6 +74,7 @@ return superagent.get(url)
     const locationData = new Location(city,geoData.body);
     longitude = locationData.longitude;
     latitude =locationData.latitude;
+    cityGlobel = locationData.search_query;
     return locationData;
 })
 }
@@ -118,7 +124,7 @@ function getTrail(latitude,longitude) {
 
    console.log(longitude,latitude,"hi");
    let key = process.env.TRAIL_API_KEY;
-   const url = `https://www.hikingproject.com/data/get-trails?lat=${latitude}&lon=${longitude}&maxDistance=500&key=${key}`;
+   const url = `https://www.hikingproject.com/data/get-trails?lat=${latitude}&lon=${longitude}&maxDistance=10&key=${key}`;
   return superagent.get(url)
   .then(data => {
      let trailArray = [];
@@ -129,6 +135,7 @@ function getTrail(latitude,longitude) {
         return trailArray;
   })
 }
+
 
   function TRAI (dataa ){
      this.name = dataa.name;
@@ -143,6 +150,70 @@ function getTrail(latitude,longitude) {
      this.condition_time = dataa.conditionDate.split(' ')[1];
   }
 
+  function moviesHandler(request, response) {
+    //If we dont want to get the latitude and longitude from the location api  
+    getMovies()
+    .then (MoviesArray => response.status(200).json(MoviesArray));
+  }
+  
+  function getMovies() {
+     let key = process.env.MOVIE_API_KEY;
+     console.log(cityGlobel);
+     const url = `https://api.themoviedb.org/3/search/movie?api_key=${key}&query=${cityGlobel}`;
+    return superagent.get(url)
+    .then(data => {
+       let MoviesArray = [];
+          data.body.results.forEach(val =>{
+          const MoviesData = new Movie(val);
+          MoviesArray.push(MoviesData)
+          })
+          return MoviesArray;
+    })
+    .catch(err => errorHandler(err))
+  }
+
+    function Movie (dataa ){
+       this.title = dataa.title;
+       this.overview=dataa.overview;
+       this.average_votes = dataa.vote_average;
+       this.total_votes = dataa.vote_count;
+       this.image_url=dataa.poster_path;
+       this.popularity = dataa.popularity;
+       this.released_on = dataa.release_date;
+    }
+    function yelpsHandler(request, response) {
+      //If we dont want to get the latitude and longitude from the location api  
+      getYelps()
+      .then (YelpsArray => response.status(200).json(YelpsArray));
+    }
+    
+    function getYelps() {
+       let key = process.env.YELP_API_KEY;
+       const url = `https://api.yelp.com/v3/businesses/search?latitude=${latitude}&longitude=${longitude}}`;
+      return superagent.get(url,headers = header)
+      .then(data => {
+         let YelpsArray = [];
+            data.body.results.forEach(val =>{
+            if(YelpsArray.length === 20){
+              return YelpsArray;
+            }
+            const YelpData = new Yelp(val);
+            YelpsArray.push(YelpData)
+            })
+            return YelpsArray;
+      })
+      .catch(err => errorHandler(err))
+    }
+  
+      function Yelp (dataa ){
+        //  this.title = dataa.title;
+        //  this.overview=dataa.overview;
+        //  this.average_votes = dataa.vote_average;
+        //  this.total_votes = dataa.vote_count;
+        //  this.image_url=dataa.poster_path;
+        //  this.popularity = dataa.popularity;
+        //  this.released_on = dataa.release_date;
+      }
 
 //Make sure the server is listening for requests
 client.connect()
