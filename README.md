@@ -2,10 +2,10 @@
 # Project Name : lab-07-API's
 
 **Author**: Abdallah Obaid
-**Version**: 1.5.0 
+**Version**: 1.0.0 
 
 ## Overview
-This lab is for testing the request and response for server data taken from API server. 
+This lab is for testing the request and response for server data taken from data-base and API server. 
 
 ## Getting Started
 The  Route:   // localhost:3000/location?city=Lynnwood
@@ -18,28 +18,37 @@ The  Route:   // localhost:3000/location?city=Lynnwood
 * node version: v10.18.1
 ## Change Log
 
-### 06-04/2020 12:00 pm - Application now has a fully-functional express server, with a GET route for the location resource.
+### 08-04/2020 1:00 pm - Application now has a fully-functional express server, with a GET route for the location resource.
 
-### Number and name of feature: The location.
+### Number and name of feature: #1Database: As a user, I want the application to perform quickly, so that I can search for locations frequently and reliably..
 
-* Estimate of time needed to complete: 2 hour
-* Start time: 2pm
-* Finish time: 4pm
-* Actual time needed to complete: 2hour
+* Estimate of time needed to complete: 30min
+* Start time: 6 pm
+* Finish time: 6:30pm
+* Actual time needed to complete: 30min
 
-### Number and name of feature: The weather.
+### Number and name of feature: #2 Server: As a user, I want the application to perform quickly so that I can search for locations frequently and reliably..
 
-* Estimate of time needed to complete: 2 hour
-* Start time: 7pm
-* Finish time: 9pm
-* Actual time needed to complete: 2hour
+* Estimate of time needed to complete: 1 hour
+* Start time: 6:30pm
+* Finish time: 7:30pm
+* Actual time needed to complete: 1hour
 
-### Number and name of feature: The trails.
+### Number and name of feature: #3 Deploy: As a user, I want the application to perform quickly so that I can search for locations frequently and reliably..
 
-* Estimate of time needed to complete: 3 hour
+* Estimate of time needed to complete: 30 min
+* Start time: 7:30pm
+* Finish time: 8pm
+* Actual time needed to complete: 30 min
+
+### Number and name of feature: #4 STRETCH: Server: As a user, I want the application to work with recent results, so that I can see info without the app doing unnecessary API calls..
+
+* Estimate of time needed to complete: 1hour
 * Start time: 9pm
-* Finish time: 12pm
-* Actual time needed to complete: 3hour
+* Finish time: 10pm
+* Actual time needed to complete: 1hour
+
 ## Credits and Collaborations
 <!-- Give credit (and a link) to other people or resources that helped you build this application. -->
 -->
+https://zellwk.com/blog/async-await-express/
