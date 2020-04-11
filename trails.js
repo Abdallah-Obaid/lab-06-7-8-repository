@@ -15,7 +15,7 @@ trailsObj.trailsHandler = function(request, response) {
 function getTrail(latitude,longitude) {
    console.log(longitude,latitude,"hi");
    let key = process.env.TRAIL_API_KEY;
-   const url = `https://www.hikingproject.com/data/get-trails?lat=${latitude}&lon=${longitude}&maxDistance=10&key=${key}`;
+   const url = `https://www.hikingproject.com/data/get-trails?lat=${latitude}&lon=${longitude}&maxDistance=500&key=${key}`;
   return serverObj.superagent.get(url)
   .then(data => {
      let trailArray = [];

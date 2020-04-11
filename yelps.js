@@ -1,10 +1,9 @@
 'use strict';
 // Load environment variables from .env
 require('dotenv').config();
-
 // Application dependencies
 const serverObj = require('./helper.js');
-var yelpsObj ={}
+var yelpsObj ={};
 const locationsObj= require('./location.js')
 
 yelpsObj.yelpsHandler = function (request, response) {
@@ -15,19 +14,18 @@ yelpsObj.yelpsHandler = function (request, response) {
 
 function getYelps(req) {
    let key = process.env.YELP_API_KEY;
-   const url = `https://api.yelp.com/v3/businesses/search?latitude=${locationsObj.latitude}&longitude=${locationsObj.longitude}}`;
-   req.headers.authorization = "Bearer "+ key;
-   return serverObj.superagent.get(request)
+  //  console.log(locationsObj.cityGlobel);
+   return serverObj.superagent.get(`https://api.yelp.com/v3/businesses/search?location=${locationsObj.cityGlobel}`).set({ "Authorization": `Bearer ${key}` })
   .then(data => {
-    console.log("data")
      let YelpsArray = [];
-        data.body.results.forEach(val =>{
+        data.body.businesses.forEach(val =>{
         if(YelpsArray.length === 20){
           return YelpsArray;
         }
         const YelpData = new Yelp(val);
         YelpsArray.push(YelpData)
         })
+        // console.log("data",YelpsArray)
         return YelpsArray;
   })
   .catch(err => {console.log(err)})
@@ -35,11 +33,9 @@ function getYelps(req) {
 module.exports = yelpsObj;
 
   function Yelp (dataa ){
-    //  this.title = dataa.title;
-    //  this.overview=dataa.overview;
-    //  this.average_votes = dataa.vote_average;
-    //  this.total_votes = dataa.vote_count;
-    //  this.image_url=dataa.poster_path;
-    //  this.popularity = dataa.popularity;
-    //  this.released_on = dataa.release_date;
+     this.name = dataa.name;
+     this.image_url=dataa.image_url;
+     this.price = dataa.price;
+     this.rating = dataa.rating;
+     this.url = dataa.url;
   }
