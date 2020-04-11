@@ -19,9 +19,6 @@ locationsObj.locationHandler=function(request, response) {
        [locationData.formatted_query,locationData.search_query,locationData.latitude,locationData.longitude],
        (error, result) => {
          loc =locationData;});
-         locationsObj.longitude = loc.longitude;
-         locationsObj.latitude  = loc.latitude;
-         locationsObj.cityGlobel = loc.search_query;
          response.status(200).json(loc)
        })
    }else{

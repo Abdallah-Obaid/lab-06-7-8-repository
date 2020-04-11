@@ -22,8 +22,11 @@
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
+    "http": "0.0.1-security",
     "jquery": "^3.4.1",
     "pg": "^8.0.0",
+    "request": "^2.88.2",
+    "requests": "^0.3.0",
     "superagent": "^5.2.2",
     "superagent-use": "^0.1.0"
   }
